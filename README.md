@@ -2,6 +2,13 @@
 
 A JavaScript library for realtime mouse position prediction
 
+## Download
+You can download a copy of MPredict.js from:
+
+**1)** The github repository: ```git clone git@github.com:cudbg/mpredict.js.git```
+
+**2)** Using npm ```npm install mpredict.js --save```, notice that you need to create a directory `node_modules` if you want to download it to your current directory.
+
 ## Usage
 MPredict.js can be added to your web page in the three steps:
 
@@ -31,7 +38,7 @@ Then MPredict.js will automatically record the current mouse trace and sample it
  - `pauseThreshold`: The time threshold of pausing; when the time between two consecutive mouse events is larger than this threshold, the second mouse event will be regarded as the beginning of a new trace; default: 50
  - `K`: The number of nearest neighbors in the KNN algorithm; default: 5
  - `pathToTemplates`: The path to the JSON file of templates used for the KNN algorithm; default: '/mpredict-templates.json'
- - `targetElement`: The selector of target element to record mouse trace from
+ - `targetElement`: The selector of target element to record mouse trace from; default: document
 
 ### API
 
