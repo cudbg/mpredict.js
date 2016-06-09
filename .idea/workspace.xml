@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f7ba0416-1411-479f-b950-8ce2593a0e43" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/prediction-demo.html" afterPath="$PROJECT_DIR$/prediction-demo.html" />
-    </list>
+    <list default="true" id="f7ba0416-1411-479f-b950-8ce2593a0e43" name="Default" comment="" />
     <ignored path="mpredict.js.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -91,8 +88,8 @@
     <detection-done>true</detection-done>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="134" />
-    <option name="y" value="24" />
+    <option name="x" value="64" />
+    <option name="y" value="42" />
     <option name="width" value="1020" />
     <option name="height" value="745" />
   </component>
@@ -194,7 +191,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="134" y="24" width="1020" height="745" extended-state="0" />
+    <frame x="64" y="42" width="1020" height="745" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24924925" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
