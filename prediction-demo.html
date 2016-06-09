@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .dot circle {
+            fill: lightsteelblue;
+            stroke: steelblue;
+            stroke-width: 1.5px;
+        }
+        .dot circle.dragging {
+            fill: red;
+            stroke: brown;
+        }
+        .axis line {
+            fill: none;
+            stroke: #ddd;
+            shape-rendering: crispEdges;
+            vector-effect: non-scaling-stroke;
+        }
+        div.tooltip {
+            position: absolute;
+            text-align: center;
+            width: 10px;
+            height: 10px;
+            padding: 2px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+</body>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="../mpredict.js"></script>
+<script>
+    var tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip");
+
+    var margin = {top: 5, right: 5, bottom: 5, left: 5},
+        width = window.innerWidth - margin.left - margin.right,
+        height = window.innerHeight - margin.top - margin.bottom;
+    var zoom = d3.behavior.zoom()
+            .scaleExtent([1, 10])
+            .on("zoom", zoomed);
+    var drag = d3.behavior.drag()
+            .origin(function(d) { return d; })
+            .on("dragstart", dragstarted)
+            .on("drag", dragged)
+            .on("dragend", dragended);
+    var svg = d3.select("body").append("svg")
+            .attr("id", "example-svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+            .call(zoom);
+    var rect = svg.append("rect")
+            .attr("width", width)
+            .attr("height", height)
+            .style("fill", "none")
+            .style("pointer-events", "all");
+    var container = svg.append("g");
+    container.append("g")
+            .attr("class", "x axis")
+            .selectAll("line")
+            .data(d3.range(0, width, 10))
+            .enter().append("line")
+            .attr("x1", function(d) { return d; })
+            .attr("y1", 0)
+            .attr("x2", function(d) { return d; })
+            .attr("y2", height);
+    container.append("g")
+            .attr("class", "y axis")
+            .selectAll("line")
+            .data(d3.range(0, height, 10))
+            .enter().append("line")
+            .attr("x1", 0)
+            .attr("y1", function(d) { return d; })
+            .attr("x2", width)
+            .attr("y2", function(d) { return d; });
+    var dots = [];
+    for (var i = 0; i < 15; i++) {
+        dots.push({x:Math.random() * width, y:Math.random() * height});
+    }
+    dot = container.append("g")
+            .attr("class", "dot")
+            .selectAll("circle")
+            .data(dots)
+            .enter().append("circle")
+            .attr("r", 5)
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; })
+            .call(drag);
+    function dottype(d) {
+        d.x = +d.x;
+        d.y = +d.y;
+        return d;
+    }
+    function zoomed() {
+        container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    }
+    function dragstarted(d) {
+        d3.event.sourceEvent.stopPropagation();
+        d3.select(this).classed("dragging", true);
+    }
+    function dragged(d) {
+        d3.select(this)
+                .attr("cx", d.x=d3.event.x)
+                .attr("cy", d.y=d3.event.y);
+    }
+    function dragended(d) {
+        d3.select(this).classed("dragging", false);
+    }
+
+    var line = d3.svg.line()
+            .x(function(d) { return d[0]; })
+            .y(function(d) { return d[1]; });
+
+    var trace = svg.append("path")
+            .style({
+                stroke: 'grey',
+                fill: 'none'
+            });
+    var predictedTrace = svg.append("path")
+            .style({ stroke: 'blue', fill: 'none', "stroke-width": 2 });
+
+    mPredict.start({'K': 1, 'targetElement': 'svg'});//, 'pathToTemplates': 'mpredict-templates.json'});
+
+    var records = [];
+
+    document.addEventListener('mousemove', function (e) {
+        trace.attr("d", line(mPredict.getCurrentTrace()) );
+
+        var curTime = Math.floor(Date.now());
+        records.push([e.pageX, e.pageY, curTime]);
+
+        var pt = mPredict.predictPosition(mPredict.getCurrentTrace(), 0);
+        if (!pt) return;
+        var timeToPredict = new Array(20);
+        for (var i = 0; i < 20; i++) {
+            timeToPredict[i] = (i+1) * 20;
+        }
+        var predictedPts = timeToPredict.map(function(i) {
+            var pt = mPredict.predictPosition(mPredict.getCurrentTrace(), i);
+            if (pt) return pt;
+        }).filter(function(d) { return d; });
+//        console.log(e.pageX, e.pageY);
+//        console.log(pt);
+//        console.log(predictedPts);
+        predictedTrace.attr("d", line(predictedPts) );
+
+        tooltip.style("left", (pt[0]) + "px")
+                .style("top", (pt[1]) + "px");
+
+    });
+
+</script>
+</html>
