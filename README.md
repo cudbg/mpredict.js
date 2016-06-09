@@ -21,7 +21,7 @@ You can pass one object parameter to `start` function to set the options.
 Then MPredict.js will automatically record the current mouse trace and sample it on the target DOM element(the document object by default)
 
 ## Demo
-[Click here](https://cudbg.github.io/mpredict.js/prediction-demo.html) to see the demo of predicting mouse position.
+[Click here](https://cudbg.github.io/mpredict.js/prediction-demo.html) to see the demo of predicting mouse position. The black line is the current trace, the blue line is the predicted positions(10ms to 400ms in future), and the dynamic circle is the predicted endpoint.
 
 ## Documentation
 
