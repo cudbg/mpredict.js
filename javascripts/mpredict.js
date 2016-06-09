@@ -134,11 +134,11 @@
             tempLen = template['lbos'];
         }
 
-        if (delta > 0 && curLen + delta > tempLen)
-            return 100000 + _calcScore(current['vap'], template['vap'], template['lbos']);
-        else {
+        //if (delta > 0 && curLen + delta > tempLen)
+            //return 100000 + _calcScore(current['vap'], template['vap'], template['lbos']);
+        //else {
             return _calcScore(current['vap'], template['vap'], template['lbos']);
-        }
+        //}
     }
 
     /**
