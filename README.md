@@ -2,6 +2,8 @@
 
 A JavaScript library for realtime mouse position prediction
 
+http://cudbg.github.io/mpredict.js
+
 ## Download
 You can download a copy of MPredict.js from:
 
