@@ -15,7 +15,7 @@
     }
 } (this, function (exports) {
     //Default config/variables
-    var VERSION = '1.1.3';
+    var VERSION = '1.1.4';
     var _templates;
     var _curTrace = [];
     var _options = {
@@ -48,6 +48,13 @@
         if (trace.length > 0 && (point[2] < trace[trace.length-1][2]
             || point[2] > trace[trace.length-1][2] + _options.pauseThreshold)) {
             trace = [];
+        }
+        if (trace.length > 0) {
+            var dist0 = _calcDist(trace[0][0], trace[0][1], trace[trace.length-1][0], trace[trace.length-1][1]);
+            var dist1 = _calcDist(trace[0][0], trace[0][1], point[0], point[1]);
+            if (dist0 > dist1) {
+                trace = [trace[trace.length-1]];
+            }
         }
 
         if (trace.length === 0 || _options.sampleInterval === 0) {
@@ -138,7 +145,7 @@
 
         var n = current['vp'].length - 1;
         var predictPoints = [];
-        var avgPoint = [0.0, 0.0];
+        var avgPoint = [0.0, 0.0, 0.0];
         matchedTemplates.forEach(function(d) {
             var pp;
             if (d['lbos'] === -1) {
@@ -147,12 +154,12 @@
                         pp = _predictSinglePoint(current, d, n, 30);
                     }
                     else {
-                        pp = _predictSinglePoint(current, d, n, d['vp'].length - n);
+                        pp = _predictSinglePoint(current, d, n, d['trace'].length - n - 2);
                     }
                 }
                 else {
                     if (n + 2 + delta >= d['trace'].length) {
-                        pp = _predictSinglePoint(current, d, n, d['vp'].length - n);
+                        pp = _predictSinglePoint(current, d, n, d['trace'].length - n - 2);
                     }
                     else {
                         pp = _predictSinglePoint(current, d, n, delta);
@@ -185,8 +192,12 @@
             avgPoint[1] += pp[1];
         });
 
-        avgPoint[0] /= matchedTemplates.length;
-        avgPoint[1] /= matchedTemplates.length;
+        avgPoint[0] /= predictPoints.length;
+        avgPoint[1] /= predictPoints.length;
+        var s = predictPoints.reduce(function(a, b) {
+            return a + Math.pow(b[0]-avgPoint[0], 2) + Math.pow(b[1]-avgPoint[1], 2);
+        }, 0);
+        avgPoint[2] = Math.sqrt(s / predictPoints.length);
 
         return avgPoint;
     }
@@ -329,20 +340,20 @@
      * @api private
      * @method _buildVAP
      */
-    function _buildVAP(trace, trueStart) {
+    function _buildVAP(trace) {
 
         var vap = {'trace': [], 'vp':[], 'ap': [], 'vap': []};
-        var trueLen = trace.length - trueStart;
-        vap['trace'] = trace.slice(trueStart, trace.length);
-        if (trueLen < 2) {
+        var tLen = trace.length;
+        vap['trace'] = trace;
+        if (tLen < 2) {
             return vap;
         }
         else {
-            if (trueLen === 2) {
+            if (tLen === 2) {
                 var v;
                 v = [
-                    (trace[trueStart + 1][0] - trace[trueStart][0]) / (trace[trueStart + 1][2] - trace[trueStart][2]),
-                    (trace[trueStart + 1][1] - trace[trueStart][1]) / (trace[trueStart + 1][2] - trace[trueStart][2])
+                    (trace[1][0] - trace[0][0]) / (trace[1][2] - trace[0][2]),
+                    (trace[1][1] - trace[0][1]) / (trace[1][2] - trace[0][2])
                 ];
                 vap['vp'] = [Math.sqrt(v[0] * v[0] + v[1] * v[1])];
                 vap['ap'] = [0.0];
@@ -350,7 +361,7 @@
                 return vap;
             }
             else {
-                for (var i = trueStart + 2; i < trace.length; i++) {
+                for (var i =  + 2; i < trace.length; i++) {
                     var v = _calcVelocity([trace[i - 2], trace[i - 1], trace[i]]);
                     var a = _calcAngle([trace[i - 2], trace[i - 1], trace[i]]);
                     vap['vp'].push(v);
@@ -371,16 +382,7 @@
      */
     function _predictPosition(trace, delta) {
 
-        var trueStart = 0;
-        for (var i = 1; i < trace.length - 1; i++) {
-            var dist0 = _calcDist(trace[trueStart][0], trace[trueStart][1], trace[i][0], trace[i][1]);
-            var dist1 = _calcDist(trace[trueStart][0], trace[trueStart][1], trace[i+1][0], trace[i+1][1]);
-            if (dist0 > dist1) {
-                trueStart = i;
-            }
-        }
-
-        var currentVAP = _buildVAP(trace, trueStart);
+        var currentVAP = _buildVAP(trace);
         if (currentVAP['vap'].length === 0) {
             return null;
         }
