@@ -1,4 +1,6 @@
 ## Changelog
+* **v1.1.6** - 2016-06-10
+   - MIT licensed
  * **v1.1.5** - 2016-06-10
    - Added support for 1-dimensional prediction
  * **v1.1.4** - 2016-06-10
