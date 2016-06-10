@@ -132,18 +132,21 @@
     var records = [];
     predDot = container.append("g");
 
-    document.addEventListener('mousemove', function (e) {
-        trace.attr("d", line(mPredict.getCurrentTrace()) );
+    var timeToPredict = new Array(16);
+    for (var i = 0; i < 15; i++) {
+        timeToPredict[i] = (i+1) * 20;
+    }
+    timeToPredict[15] = 0;
 
-        var pt = mPredict.predictPosition(mPredict.getCurrentTrace(), 0);
+    document.addEventListener('mousemove', function (e) {
+        var curTrace = getCurrentTrace();
+        trace.attr("d", line(curTrace));
+
+        var pt = mPredict.predictPosition(curTrace, 0);
         if (!pt) return;
-        var timeToPredict = new Array(16);
-        for (var i = 0; i < 15; i++) {
-            timeToPredict[i] = (i+1) * 20;
-        }
-        timeToPredict[15] = 0;
+
         var predictedPts = timeToPredict.map(function(i) {
-            var pt = mPredict.predictPosition(mPredict.getCurrentTrace(), i);
+            var pt = mPredict.predictPosition(curTrace, i);
             if (pt) return pt;
         }).filter(function(d) { return d; });
 
@@ -157,8 +160,13 @@
                     return Math.log(d[2] + 1.0) / Math.log(2);
                 });
 
+        console.log(calcDist(e.pageX, e.pageY, predictedPts[15][0], predictedPts[15][1]));
         predictedTrace.attr("d", line(predictedPts));
     });
+
+    function calcDist(x1, y1, x2, y2) {
+        return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+    }
 
 </script>
 </html>
