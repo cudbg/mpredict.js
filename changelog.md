@@ -1,4 +1,6 @@
 ## Changelog
+ * **v1.1.3** - 2016-06-09
+   - Removed the restriction on templates' length
  * **v1.1.2** - 2016-06-08
    - Add Documentation in READMED.md
    - Add `start` method to initialize and set options
