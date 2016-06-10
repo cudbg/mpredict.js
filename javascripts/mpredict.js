@@ -1,7 +1,4 @@
 /**
- * Created by J-Miao on 6/9/16.
- */
-/**
  * Created by J-Miao on 5/29/16.
  */
 
@@ -18,7 +15,7 @@
     }
 } (this, function (exports) {
     //Default config/variables
-    var VERSION = '1.1.2';
+    var VERSION = '1.1.3';
     var _templates;
     var _curTrace = [];
     var _options = {
@@ -127,18 +124,7 @@
      * @method _getScore
      */
     function _getScore(current, template, delta) {
-
-        var curLen = current['trace'].length;
-        var tempLen = template['trace'].length;
-        if (template['lbos'] !== -1) {
-            tempLen = template['lbos'];
-        }
-
-        if (delta > 0 && curLen + delta > tempLen)
-            return 100000 + _calcScore(current['vap'], template['vap'], template['lbos']);
-        else {
-            return _calcScore(current['vap'], template['vap'], template['lbos']);
-        }
+        return _calcScore(current['vap'], template['vap'], template['lbos']);
     }
 
     /**
