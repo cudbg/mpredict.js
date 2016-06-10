@@ -139,7 +139,7 @@
     timeToPredict[15] = 0;
 
     document.addEventListener('mousemove', function (e) {
-        var curTrace = getCurrentTrace();
+        var curTrace = mPredict.getCurrentTrace();
         trace.attr("d", line(curTrace));
 
         var pt = mPredict.predictPosition(curTrace, 0);
