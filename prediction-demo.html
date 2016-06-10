@@ -10,6 +10,9 @@
             stroke: steelblue;
             stroke-width: 1.5px;
         }
+        circle.predicted {
+            fill: #e6550d;
+        }
         .dot circle.dragging {
             fill: red;
             stroke: brown;
@@ -20,18 +23,6 @@
             shape-rendering: crispEdges;
             vector-effect: non-scaling-stroke;
         }
-        div.tooltip {
-            position: absolute;
-            text-align: center;
-            width: 10px;
-            height: 10px;
-            padding: 2px;
-            font: 12px sans-serif;
-            background: lightsteelblue;
-            border: 0px;
-            border-radius: 8px;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body>
@@ -41,11 +32,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
 <script src="javascripts/mpredict.js"></script>
 <script>
-    var tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip");
+
     var margin = {top: 5, right: 5, bottom: 5, left: 5},
-        width = window.innerWidth - margin.left - margin.right,
-        height = window.innerHeight - margin.top - margin.bottom;
+            width = window.innerWidth - margin.left - margin.right,
+            height = window.innerHeight - margin.top - margin.bottom;
     var zoom = d3.behavior.zoom()
             .scaleExtent([1, 10])
             .on("zoom", zoomed);
@@ -135,7 +125,7 @@
                 fill: 'none'
             });
     var predictedTrace = svg.append("path")
-            .style({ stroke: 'blue', fill: 'none', "stroke-width": 2 });
+            .style({ stroke: '#3182bd', fill: 'none', "stroke-width": 2, opacity: 0.5 });
 
     mPredict.start({'K': 10, 'targetElement': 'svg'});
 
@@ -147,34 +137,25 @@
 
         var pt = mPredict.predictPosition(mPredict.getCurrentTrace(), 0);
         if (!pt) return;
-        var timeToPredict = new Array(20);
-        for (var i = 0; i < 20; i++) {
-            timeToPredict[i] = (i+1) * 20;
+        var timeToPredict = new Array(31);
+        for (var i = 0; i < 30; i++) {
+            timeToPredict[i] = (i+1) * 10;
         }
+        timeToPredict[30] = 0;
         var predictedPts = timeToPredict.map(function(i) {
             var pt = mPredict.predictPosition(mPredict.getCurrentTrace(), i);
             if (pt) return pt;
         }).filter(function(d) { return d; });
+
         predDot.selectAll("circle").data(predictedPts)
-          .enter().append("circle")
-          .attr("cx", function(d) { console.log(d); return d.x })
-          .attr("cy", function(d) { return d.y} )
-          .attr("r", 6)
-        predDot.selectAll("circle").data(predictedPts)
-          .attr("cx", function(d) { return d[0] })
-          .attr("cy", function(d) { return d[1]} )
-          .attr("r", 6)
-          .attr("fill", "black")
+                .enter().append("circle")
+                .attr("class", "predicted");
+        predDot.selectAll("circle")//.data(predictedPts)
+                .attr("cx", function(d) { return d[0]})
+                .attr("cy", function(d) { return d[1]})
+                .attr("r", 6);
 
-
-//        console.log(e.pageX, e.pageY);
-//        console.log(pt);
-//        console.log(predictedPts);
-        predictedTrace.attr("d", line(predictedPts) );
-
-        tooltip.style("left", (pt[0]) + "px")
-                .style("top", (pt[1]) + "px");
-
+        predictedTrace.attr("d", line(predictedPts));
     });
 
 </script>

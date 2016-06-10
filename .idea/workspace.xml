@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f7ba0416-1411-479f-b950-8ce2593a0e43" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/javascripts/mpredict.js" afterPath="$PROJECT_DIR$/javascripts/mpredict.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/prediction-demo.html" afterPath="$PROJECT_DIR$/prediction-demo.html" />
     </list>
     <ignored path="mpredict.js.iws" />
@@ -27,8 +26,18 @@
       <file leaf-file-name="prediction-demo.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/prediction-demo.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5522388">
-              <caret line="146" column="0" selection-start-line="146" selection-start-column="0" selection-end-line="146" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.62189054">
+              <caret line="129" column="51" selection-start-line="129" selection-start-column="51" selection-end-line="129" selection-end-column="51" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mpredict.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/javascripts/mpredict.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="12" column="26" selection-start-line="0" selection-start-column="0" selection-end-line="501" selection-end-column="4" />
               <folding />
             </state>
           </provider>
@@ -51,8 +60,8 @@
       <list>
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/mpredict.js" />
-        <option value="$PROJECT_DIR$/prediction-demo.html" />
         <option value="$PROJECT_DIR$/javascripts/mpredict.js" />
+        <option value="$PROJECT_DIR$/prediction-demo.html" />
       </list>
     </option>
   </component>
@@ -62,8 +71,8 @@
     <detection-done>true</detection-done>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-1427" />
-    <option name="y" value="-165" />
+    <option name="x" value="-1286" />
+    <option name="y" value="93" />
     <option name="width" value="1020" />
     <option name="height" value="745" />
   </component>
@@ -127,7 +136,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1427" y="-165" width="1020" height="745" extended-state="0" />
+    <frame x="-1286" y="93" width="1020" height="745" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24924925" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -167,15 +176,15 @@
     <entry file="file://$PROJECT_DIR$/javascripts/mpredict.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="12" column="26" selection-start-line="0" selection-start-column="0" selection-end-line="501" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/prediction-demo.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5522388">
-          <caret line="146" column="0" selection-start-line="146" selection-start-column="0" selection-end-line="146" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.62189054">
+          <caret line="129" column="51" selection-start-line="129" selection-start-column="51" selection-end-line="129" selection-end-column="51" />
           <folding />
         </state>
       </provider>
