@@ -15,7 +15,7 @@
     }
 } (this, function (exports) {
     //Default config/variables
-    var VERSION = '1.1.4';
+    var VERSION = '1.1.5';
     var _templates;
     var _curTrace = [];
     var _options = {
@@ -28,6 +28,38 @@
 
     function _calcDist(x1, y1, x2, y2) {
         return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+    }
+
+    function _dotProduct(v1, v2) {
+        return v1[0] * v2[0] + v1[1] * v2[1];
+    }
+
+    /**
+     * Scalar projection of v1 onto v2
+     *
+     * @api private
+     * @method _project
+     */
+    function _project(v1, v2) {
+        var v2Len = _calcDist(v2[0], v2[1], 0, 0);
+        if (v2Len < 1e-8) {
+            return null;
+        }
+        var r = _dotProduct(v1, v2) / (v2Len * v2Len);
+        return [r * v2[0], r * v2[1]]
+    }
+
+    /**
+     * Calculaye the perpendicular from p to vector v
+     *
+     * @api private
+     * @method _perpendicular
+     */
+    function _perpendicular(p, v) {
+        var v2p = [p[0] - v[0], p[1] - v[1]];
+        var vLen = _calcDist(v[0], v[1], 0, 0);
+        var r = _dotProduct(v2p, v) / (vLen * vLen);
+        return [r * v[0], r * v[1]];
     }
 
     /**
@@ -130,8 +162,13 @@
      * @api private
      * @method _getScore
      */
-    function _getScore(current, template, delta) {
-        return _calcScore(current['vap'], template['vap'], template['lbos']);
+    function _getScore(current, template, delta, constraint) {
+        if (constraint && constraint.length === 2) {
+            return _calcScore(current['vp'], template['vp'], template['lbos']);
+        }
+        else {
+            return _calcScore(current['vap'], template['vap'], template['lbos']);
+        }
     }
 
     /**
@@ -141,49 +178,50 @@
      * @api private
      * @method _predictPoint
      */
-    function _predictPoint(current, matchedTemplates, delta) {
+    function _predictPoint(current, matchedTemplates, delta, constraint) {
 
         var n = current['vp'].length - 1;
         var predictPoints = [];
         var avgPoint = [0.0, 0.0, 0.0];
+
         matchedTemplates.forEach(function(d) {
             var pp;
             if (d['lbos'] === -1) {
                 if (delta <= 0) {
                     if (d['vp'].length - n > 30) {
-                        pp = _predictSinglePoint(current, d, n, 30);
+                        pp = _predictSinglePoint(current, d, n, 30, constraint);
                     }
                     else {
-                        pp = _predictSinglePoint(current, d, n, d['trace'].length - n - 2);
+                        pp = _predictSinglePoint(current, d, n, d['trace'].length - n - 2, constraint);
                     }
                 }
                 else {
                     if (n + 2 + delta >= d['trace'].length) {
-                        pp = _predictSinglePoint(current, d, n, d['trace'].length - n - 2);
+                        pp = _predictSinglePoint(current, d, n, d['trace'].length - n - 2, constraint);
                     }
                     else {
-                        pp = _predictSinglePoint(current, d, n, delta);
+                        pp = _predictSinglePoint(current, d, n, delta, constraint);
                     }
                 }
             }
             else {
                 if (delta <= 0) {
                     if (d['lbos'] - n - 2 > 30) {
-                        pp = _predictSinglePoint(current, d, n, 30)
+                        pp = _predictSinglePoint(current, d, n, 30, constraint)
                     }
                     else {
-                        pp = _predictSinglePoint(current, d, n, d['lbos'] - n - 2)
+                        pp = _predictSinglePoint(current, d, n, d['lbos'] - n - 2, constraint)
                     }
                 }
                 else {
                     //if (n + 2 + delta >= d['trace'].length) {
                     if (n + 2 + delta >= d['lbos']) {
                         //pp = _predictSinglePoint(current, d, n, d['vp'].length - n);
-                        pp = _predictSinglePoint(current, d, n, d['lbos'] - n - 2)
+                        pp = _predictSinglePoint(current, d, n, d['lbos'] - n - 2, constraint)
 
                     }
                     else {
-                        pp = _predictSinglePoint(current, d, n, delta);
+                        pp = _predictSinglePoint(current, d, n, delta, constraint);
                     }
                 }
             }
@@ -201,15 +239,46 @@
 
         return avgPoint;
     }
+
     /**
-     * predict the position for the given trace and one of the matched templates after delta time
+     * predict the position for the given trace on the direction of given constraint vector
+     * and for one of the matched templates after delta time
      * delta <= 0 means predicting the endpoint
      *
      * @api private
-     * @method _predictSinglePoint
+     * @method _predictSinglePoint1D
      */
 
-    function _predictSinglePoint(current, template, tempStart, tempLen) {
+    function _predictSinglePoint1D(current, template, tempStart, tempLen, constraint) {
+        var n = current['vp'].length - 1;
+        var cTrace = current['trace'];
+        var offset = 2;
+        if (n + 3 !== cTrace.length) {
+            offset = 1;
+        }
+        var p = [cTrace[n+offset][0], cTrace[n+offset][1]];
+        //var projectedP = _perpendicular(p, constraint);
+        var dist = 0.0;
+        for (var i = 0; i < tempLen; i++) {
+            dist += template['vp'][tempStart + i] * _options.sampleInterval;
+        }
+        var curV = [cTrace[n+offset][0] - cTrace[n][0], cTrace[n+offset][1] - cTrace[n][1]];
+        if (_dotProduct(curV, constraint) < 0) {
+            dist = -dist;
+        }
+        //return [projectedP[0] + dist * constraint[0], projectedP[1] + dist * constraint[1]];
+        return [p[0] + dist * constraint[0], p[1] + dist * constraint[1]];
+    }
+
+    /**
+     * predict the position for the given trace on 2-d plane and one of the matched templates after delta time
+     * delta <= 0 means predicting the endpoint
+     *
+     * @api private
+     * @method _predictSinglePoint2D
+     */
+
+    function _predictSinglePoint2D(current, template, tempStart, tempLen) {
 
         var n = current['vp'].length - 1;
         var cTrace = current['trace'];
@@ -265,12 +334,29 @@
     }
 
     /**
+     * predict the position for the given trace and one of the matched templates after delta time
+     * delta <= 0 means predicting the endpoint
+     *
+     * @api private
+     * @method _predictSinglePoint
+     */
+
+    function _predictSinglePoint(current, template, tempStart, tempLen, constraint) {
+        if (constraint && constraint.length === 2) {
+            return _predictSinglePoint1D(current, template, tempStart, tempLen, constraint)
+        }
+        else {
+            return _predictSinglePoint2D(current, template, tempStart, tempLen);
+        }
+    }
+
+    /**
      * Calculate velocity for given three points
      *
      * @api private
      * @method _calcVelocity
      */
-    function _calcVelocity(pts) {
+    function _calcVelocity(pts, constraint) {
 
         var v = [0.0, 0.0];
         if (pts.length < 3) {
@@ -292,7 +378,13 @@
             v[0] /= (t1 * t1 * t2 - t2 * t2 * t1);
             v[1] /= (t1 * t1 * t2 - t2 * t2 * t1);
         }
-        return Math.sqrt(v[0]*v[0] + v[1]*v[1]);
+        if (constraint && constraint.length === 2) {
+            var projectedV = _project(v, constraint);
+            return Math.sqrt(projectedV[0] * projectedV[0] + projectedV[1] * projectedV[1]);
+        }
+        else {
+            return Math.sqrt(v[0] * v[0] + v[1] * v[1]);
+        }
     }
 
     /**
@@ -308,7 +400,7 @@
 
         var v1 = [pts[1][0] - pts[0][0], pts[1][1] - pts[0][1]];
         var v2 = [pts[2][0] - pts[1][0], pts[2][1] - pts[1][1]];
-        var dot = v1[0] * v2[0] + v1[1] * v2[1];
+        var dot = _dotProduct(v1, v2);
         var det = v1[0] * v2[1] - v1[1] * v2[0];
         return Math.atan2(det, dot);
     }
@@ -340,7 +432,7 @@
      * @api private
      * @method _buildVAP
      */
-    function _buildVAP(trace) {
+    function _buildVAP(trace, constraint) {
 
         var vap = {'trace': [], 'vp':[], 'ap': [], 'vap': []};
         var tLen = trace.length;
@@ -349,26 +441,53 @@
             return vap;
         }
         else {
-            if (tLen === 2) {
-                var v;
-                v = [
-                    (trace[1][0] - trace[0][0]) / (trace[1][2] - trace[0][2]),
-                    (trace[1][1] - trace[0][1]) / (trace[1][2] - trace[0][2])
-                ];
-                vap['vp'] = [Math.sqrt(v[0] * v[0] + v[1] * v[1])];
-                vap['ap'] = [0.0];
-                vap['vap'] = vap['vp']
-                return vap;
+            if (constraint && constraint.length === 2) {
+                if (tLen === 2) {
+                    var v;
+                    v = [
+                        (trace[1][0] - trace[0][0]) / (trace[1][2] - trace[0][2]),
+                        (trace[1][1] - trace[0][1]) / (trace[1][2] - trace[0][2])
+                    ];
+                    var projectedV = _project(v, constraint);
+                    vap['vp'] = [Math.sqrt(projectedV[0] * projectedV[0] + projectedV[1] * projectedV[1])];
+                    vap['ap'] = [0.0];
+                    vap['vap'] = vap['vp']
+                    return vap;
+                }
+                else {
+                    for (var i = 2; i < trace.length; i++) {
+                        var v = _calcVelocity([trace[i - 2], trace[i - 1], trace[i]], constraint);
+                        var a = _calcAngle([trace[i - 2], trace[i - 1], trace[i]]);
+                        vap['vp'].push(v);
+                        vap['ap'].push(a);
+                    }
+                    vap['vap'] = _combineVA(vap['vp'], vap['ap']);
+                    return vap;
+                }
+
             }
             else {
-                for (var i =  + 2; i < trace.length; i++) {
-                    var v = _calcVelocity([trace[i - 2], trace[i - 1], trace[i]]);
-                    var a = _calcAngle([trace[i - 2], trace[i - 1], trace[i]]);
-                    vap['vp'].push(v);
-                    vap['ap'].push(a);
+                if (tLen === 2) {
+                    var v;
+                    v = [
+                        (trace[1][0] - trace[0][0]) / (trace[1][2] - trace[0][2]),
+                        (trace[1][1] - trace[0][1]) / (trace[1][2] - trace[0][2])
+                    ];
+                    vap['vp'] = [Math.sqrt(v[0] * v[0] + v[1] * v[1])];
+                    vap['ap'] = [0.0];
+                    vap['vap'] = vap['vp']
+                    return vap;
                 }
-                vap['vap'] = _combineVA(vap['vp'], vap['ap']);
-                return vap;
+                else {
+                    for (var i = 2; i < trace.length; i++) {
+                        var v = _calcVelocity([trace[i - 2], trace[i - 1], trace[i]]);
+                        var a = _calcAngle([trace[i - 2], trace[i - 1], trace[i]]);
+                        vap['vp'].push(v);
+                        vap['ap'].push(a);
+                    }
+                    vap['vap'] = _combineVA(vap['vp'], vap['ap']);
+                    return vap;
+                }
             }
         }
     }
@@ -380,21 +499,44 @@
      * @api private
      * @method _predictPosition
      */
-    function _predictPosition(trace, delta) {
+    function _predictPosition(trace, delta, option) {
+        if (option && option['constraint'] && option['constraint'].length === 2) {
+            var contraintLen = _calcDist(option['constraint'][0], option['constraint'][1], 0, 0);
+            if (contraintLen < 1e-8) {
+                return null;
+            }
+            option['constraint'][0] /= contraintLen;
+            option['constraint'][1] /= contraintLen;
+        }
 
-        var currentVAP = _buildVAP(trace);
+        var currentVAP;
+
+        if (option && option.hasOwnProperty('type') && option['type'] === '1D') {
+            currentVAP = _buildVAP(trace, option['constraint']);
+        }
+        else {
+            currentVAP = _buildVAP(trace);
+        }
         if (currentVAP['vap'].length === 0) {
             return null;
         }
 
-        var scores = _templates.map(function(d) {
-            return _getScore(currentVAP, d, delta);
-        });
+        var scores;
+        if (option && option.hasOwnProperty('type') && option['type'] === '1D') {
+            scores = _templates.map(function (d) {
+                return _getScore(currentVAP, d, delta, option['constraint']);
+            });
+        }
+        else {
+            scores = _templates.map(function (d) {
+                return _getScore(currentVAP, d, delta);
+            });
+        }
 
         var minScore = new Array(_options.K).fill(1e10);
         var matchingVAP = new Array(_options.K).fill(-1);
 
-        scores.forEach(function(d, i) {
+        scores.forEach(function (d, i) {
             for (var j = 0; j < _options.K; j++) {
                 if (d < minScore[j]) {
                     for (var k = _options.K - 1; k > j; k--) {
@@ -412,9 +554,13 @@
         for (var i = 0; i < _options.K; i++) {
             matched.push(_templates[matchingVAP[i]]);
         }
-        return _predictPoint(currentVAP, matched, delta);
+        if (option && option.hasOwnProperty('type') && option['type'] === '1D') {
+            return _predictPoint(currentVAP, matched, delta, option['constraint']);
+        }
+        else {
+            return _predictPoint(currentVAP, matched, delta);
+        }
     }
-
     /**
      * Start listening to the target DOM element
      *
@@ -464,8 +610,8 @@
     //    return this;
     //};
 
-    mPredict.predictPosition = function(trace, deltaTime) {
-        return _predictPosition(trace, deltaTime / _options.sampleInterval);
+    mPredict.predictPosition = function(trace, deltaTime, option) {
+        return _predictPosition(trace, deltaTime / _options.sampleInterval, option);
     };
 
     mPredict.sampleTrace = function(trace) {
@@ -477,7 +623,6 @@
     };
 
     mPredict.start = function(options) {
-
         for (var attrname in options) {
             _options[attrname] = options[attrname];
         }
