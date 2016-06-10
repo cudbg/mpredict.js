@@ -153,7 +153,7 @@
     var predictedTrace = svg.append("path")
             .style({ stroke: '#3182bd', fill: 'none', "stroke-width": 2, opacity: 0.5 });
 
-    mPredict.start({'K': 5, 'targetElement': 'svg', 'pathToTemplates': '../mpredict-templates.json'});
+    mPredict.start({'K': 5, 'targetElement': 'svg'});
 
     var records = [];
     var predDot = svg.append("g");
