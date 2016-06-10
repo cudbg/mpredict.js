@@ -114,6 +114,6 @@ Predict the mouse position for the given trace after deltaTime
 **Example:**
 ```javascript
 mPredict.predictPosition(mPredict.getCurrentTrace(), 0)
-
+mPredict.predictPosition(mPredict.getCurrentTrace(), 100, {'type': '1D', 'constraint': [1, 0]});
 ````
 -----
