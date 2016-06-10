@@ -1,6 +1,11 @@
 /**
- * Created by J-Miao on 5/29/16.
+ * MPredict.js v1.1.5
+ * https://github.com/cudbg/mpredict.js
+ * MIT licensed
+ *
+ * Copyright (C) 2016 - by Zhengjie Miao (@J-Miao)
  */
+
 
 (function (root, factory) {
     if (typeof exports === 'object') {
