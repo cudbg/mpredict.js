@@ -137,11 +137,11 @@
 
         var pt = mPredict.predictPosition(mPredict.getCurrentTrace(), 0);
         if (!pt) return;
-        var timeToPredict = new Array(31);
-        for (var i = 0; i < 30; i++) {
-            timeToPredict[i] = (i+1) * 10;
+        var timeToPredict = new Array(16);
+        for (var i = 0; i < 15; i++) {
+            timeToPredict[i] = (i+1) * 20;
         }
-        timeToPredict[30] = 0;
+        timeToPredict[15] = 0;
         var predictedPts = timeToPredict.map(function(i) {
             var pt = mPredict.predictPosition(mPredict.getCurrentTrace(), i);
             if (pt) return pt;
