@@ -96,16 +96,20 @@ var sampledTrace = mPredict.sampleTrace(unsampledTrace)
 ````
 -----
 
-####mPredict.predictPosition(trace, deltaTime)
+####mPredict.predictPosition(trace, deltaTime, option)
 
 Predict the mouse position for the given trace after deltaTime
 
 **Parameters:**
  - trace : sampled mouse trace
  - deltaTime : integer(in milliseconds), deltaTime <= 0 means predicting the endpoint for the given trace
+ - option :  Object(optional)
+                 Object that contains option keys with values for prediction.
+                 - `type`: prediction type: '1D' or '2D'; default: '2D'
+                 - `constraint`: a vector that indicates the moving direction if prediction type is '1D'
 
 **Returns:**
- - Array: `[x, y]` (in pixels)
+ - Array: `[x, y, std]` (in pixels)
 
 **Example:**
 ```javascript

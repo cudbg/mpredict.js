@@ -1,4 +1,6 @@
 ## Changelog
+ * **v1.1.5** - 2016-06-10
+   - Added support for 1-dimensional prediction
  * **v1.1.4** - 2016-06-10
    - Removed the part before overshooting in the current trace
    - Added the calculation of standard deviation of predictions of the neighbors
