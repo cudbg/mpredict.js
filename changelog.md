@@ -1,4 +1,7 @@
 ## Changelog
+ * **v1.1.4** - 2016-06-10
+   - Removed the part before overshooting in the current trace
+   - Added the calculation of standard deviation of predictions of the neighbors
  * **v1.1.3** - 2016-06-09
    - Removed the restriction on templates' length
  * **v1.1.2** - 2016-06-08
